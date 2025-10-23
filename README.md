@@ -1,5 +1,8 @@
 # Apartment Search Frontend (for google & elastic hackathon)
 
+**Backend**: [google-elastic-hackathon-frenta-backend](https://github.com/yahorbarkouski/google-elastic-hackathon-frenta-backend)
+
+
 Semantic apartment search interface. Search by natural language, see results with matched claims and verified locations.
 
 ## Stack
