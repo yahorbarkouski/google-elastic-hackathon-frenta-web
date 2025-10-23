@@ -15,7 +15,7 @@ export default function Home() {
 
   return (
     <div className="relative flex min-h-[calc(100vh-100px)] flex-col items-center justify-between bg-[#E8E7E5] h-full">
-      <div className="relative flex w-full flex-1">
+      <div className="relative flex w-full flex-1 pb-40">
         {results.length > 0 && !loading ? (
           <ApartmentPanel results={results} />
         ) : (
@@ -33,7 +33,7 @@ export default function Home() {
           </div>
         )}
       </div>
-      <div className="sticky bottom-3 md:bottom-5 z-30 flex w-full justify-center px-3 md:px-4">
+      <div className="fixed bottom-3 md:bottom-5 z-30 flex w-full justify-center px-3 md:px-4">
         <SearchIsland
           onSubmit={handleSearch}
           loading={loading}
