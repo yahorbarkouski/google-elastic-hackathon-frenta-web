@@ -25,9 +25,10 @@ cp .env.local.example .env.local
 ```
 
 Required keys:
-- `GEMINI_API_KEY` - Gemini API for Maps grounding widgets
 - `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` - Google Maps API (enable Maps JavaScript API + Places API)
 - `NEXT_PUBLIC_API_URL` - Backend URL (default: `http://localhost:8000`)
+
+Note: Maps grounding (Gemini API) now happens on the backend for security.
 
 ## Run
 

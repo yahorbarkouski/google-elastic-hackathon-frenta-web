@@ -203,68 +203,25 @@ export async function generateMapsGroundedContent(params: {
     googleMapsWidgetContextToken?: string
   }
 }> {
-  const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY
-
-  if (!apiKey) {
-    throw new Error('Gemini API key not configured')
-  }
-
-  const response = await fetch(
-    'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent',
-    {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-goog-api-key': apiKey,
-      },
-      body: JSON.stringify({
-        contents: [
-          {
-            parts: [
-              {
-                text: params.prompt,
-              },
-            ],
-          },
-        ],
-        tools: [
-          {
-            googleMaps: {
-              enableWidget: params.enableWidget ?? true,
-            },
-          },
-        ],
-        toolConfig: {
-          retrievalConfig: {
-            latLng: {
-              latitude: params.latitude,
-              longitude: params.longitude,
-            },
-          },
-        },
-      }),
-    }
-  )
+  const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/maps-grounding`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      prompt: params.prompt,
+      latitude: params.latitude,
+      longitude: params.longitude,
+      enable_widget: params.enableWidget ?? true,
+    }),
+  })
 
   if (!response.ok) {
     const error = await response.json()
-    throw new Error(
-      error.error?.message || 'Failed to generate grounded content'
-    )
+    throw new Error(error.detail || 'Failed to generate grounded content')
   }
 
-  const data = await response.json()
-  const candidate = data.candidates?.[0]
-  const grounding = candidate?.groundingMetadata
-
-  return {
-    text: candidate?.content?.parts?.[0]?.text || '',
-    widgetContextToken: grounding?.googleMapsWidgetContextToken,
-    groundingMetadata: grounding,
-  }
+  return response.json()
 }
 
-export function getGeminiApiKey(): string | undefined {
-  return process.env.GEMINI_API_KEY
-}
 
