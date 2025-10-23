@@ -4,13 +4,14 @@ import { useRef, forwardRef, useImperativeHandle, useEffect, useState } from "re
 import { useMapsLibrary } from "@vis.gl/react-google-maps"
 
 declare global {
+  // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace JSX {
     interface IntrinsicElements {
       "gmp-map-3d": React.DetailedHTMLProps<
         React.HTMLAttributes<HTMLElement>,
         HTMLElement
       > & {
-        center?: any
+        center?: { lat: number; lng: number; altitude?: number }
         range?: number
         heading?: number
         tilt?: number
@@ -35,9 +36,10 @@ interface Map3DProps {
   className?: string
 }
 
-export const Map3D = forwardRef<any, Map3DProps>((props, forwardedRef) => {
+export const Map3D = forwardRef<HTMLElement | null, Map3DProps>((props, forwardedRef) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   useMapsLibrary("maps3d" as any)
-  const mapRef = useRef<any>(null)
+  const mapRef = useRef<HTMLElement | null>(null)
   const [customElementsReady, setCustomElementsReady] = useState(false)
   const initializedRef = useRef(false)
 
@@ -50,7 +52,8 @@ export const Map3D = forwardRef<any, Map3DProps>((props, forwardedRef) => {
     className,
   } = props
 
-  useImperativeHandle(forwardedRef, () => mapRef.current, [])
+  // @ts-expect-error - forwardRef allows null but useImperativeHandle types are strict
+  useImperativeHandle(forwardedRef, () => mapRef.current)
 
   useEffect(() => {
     customElements.whenDefined("gmp-map-3d").then(() => {
@@ -61,7 +64,8 @@ export const Map3D = forwardRef<any, Map3DProps>((props, forwardedRef) => {
   useEffect(() => {
     if (!mapRef.current || !customElementsReady || initializedRef.current) return
 
-    const element = mapRef.current
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const element = mapRef.current as any
     
     const initializeMap = () => {
       element.center = center
@@ -73,6 +77,7 @@ export const Map3D = forwardRef<any, Map3DProps>((props, forwardedRef) => {
     }
 
     setTimeout(initializeMap, 200)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [customElementsReady, mapRef.current])
 
   if (!customElementsReady) {
@@ -84,14 +89,16 @@ export const Map3D = forwardRef<any, Map3DProps>((props, forwardedRef) => {
   }
 
   return (
-    // @ts-ignore
-    <gmp-map-3d
-      ref={mapRef}
-      defaultUIHidden={true}
-      mode="SATELLITE"
-      className={className}
-      style={{ width: "100%", height: "600px", display: "block" }}
-    />
+    <>
+      {/* @ts-expect-error - gmp-map-3d is a custom element from Google Maps */}
+      <gmp-map-3d
+        ref={mapRef}
+        defaultUIHidden={true}
+        mode="SATELLITE"
+        className={className}
+        style={{ width: "100%", height: "600px", display: "block" }}
+      />
+    </>
   )
 })
 

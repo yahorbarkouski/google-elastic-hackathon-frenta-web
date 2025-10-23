@@ -52,12 +52,15 @@ export const Location3DMap = forwardRef<Location3DMapRef, Location3DMapProps>(({
   longitude,
   address,
 }, ref) => {
-  const [map, setMap] = useState<any>(null)
+  const [map, setMap] = useState<HTMLElement | null>(null)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const maps3dLib = useMapsLibrary("maps3d" as any)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const placesLib = useMapsLibrary("places" as any)
   const [selectedPlace, setSelectedPlace] = useState<SelectedPlace | null>(null)
   const [loadingPlaceDetails, setLoadingPlaceDetails] = useState(false)
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const placeMarkersRef = useRef<any[]>([])
 
   useEffect(() => {
@@ -142,12 +145,14 @@ export const Location3DMap = forwardRef<Location3DMapRef, Location3DMapProps>(({
               })
 
               const photos = detailsResult.place.photos
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 ? detailsResult.place.photos.map((photo: any) => 
                     photo.getURI({ maxWidth: 600, maxHeight: 400 })
                   )
                 : []
 
               const reviews = detailsResult.place.reviews
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 ? detailsResult.place.reviews.slice(0, 3).map((review: any) => ({
                     authorName: review.authorAttribution?.displayName || "Anonymous",
                     rating: review.rating || 0,
@@ -219,6 +224,7 @@ export const Location3DMap = forwardRef<Location3DMapRef, Location3DMapProps>(({
           <div className="absolute top-4 right-4 w-80 bg-white/95 backdrop-blur-sm rounded-lg shadow-2xl overflow-hidden">
             {selectedPlace.photos && selectedPlace.photos.length > 0 ? (
               <div className="relative">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={selectedPlace.photos[currentPhotoIndex]}
                   alt={selectedPlace.name}

@@ -6,4 +6,5 @@ export const searchResultsAtom = atom<SearchResult[]>([])
 export const searchLoadingAtom = atom<boolean>(false)
 export const searchErrorAtom = atom<string | null>(null)
 export const searchedAtom = atom<boolean>(false)
+export const doubleCheckMatchesAtom = atom<boolean>(false)
 

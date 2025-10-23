@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion"
 
-type TabType = "overview" | "claims" | "details" | "location"
+type TabType = "overview" | "features"
 
 interface ApartmentTabsProps {
   activeTab: TabType
@@ -33,51 +33,13 @@ export function ApartmentTabs({ activeTab, onTabChange }: ApartmentTabsProps) {
           )}
         </button>
         <button
-          onClick={() => onTabChange("claims")}
+          onClick={() => onTabChange("features")}
           className={`px-2 py-2 text-neutral-600 text-[15px] relative ${
-            activeTab === "claims" ? "text-neutral-900" : ""
+            activeTab === "features" ? "text-neutral-900" : ""
           }`}
         >
-          Claims
-          {activeTab === "claims" && (
-            <motion.div
-              className="absolute bottom-0 left-0 h-0.5 bg-neutral-900 w-full"
-              layoutId="activeTab"
-              transition={{
-                type: "spring",
-                stiffness: 500,
-                damping: 30,
-              }}
-            />
-          )}
-        </button>
-        <button
-          onClick={() => onTabChange("details")}
-          className={`px-2 py-2 text-neutral-600 text-[15px] relative ${
-            activeTab === "details" ? "text-neutral-900" : ""
-          }`}
-        >
-          Details
-          {activeTab === "details" && (
-            <motion.div
-              className="absolute bottom-0 left-0 h-0.5 bg-neutral-900 w-full"
-              layoutId="activeTab"
-              transition={{
-                type: "spring",
-                stiffness: 500,
-                damping: 30,
-              }}
-            />
-          )}
-        </button>
-        <button
-          onClick={() => onTabChange("location")}
-          className={`px-2 py-2 text-neutral-600 text-[15px] relative ${
-            activeTab === "location" ? "text-neutral-900" : ""
-          }`}
-        >
-          Location
-          {activeTab === "location" && (
+          Features
+          {activeTab === "features" && (
             <motion.div
               className="absolute bottom-0 left-0 h-0.5 bg-neutral-900 w-full"
               layoutId="activeTab"

@@ -1,13 +1,13 @@
 "use client"
 
 import { motion } from "framer-motion"
-import { ArrowUp, Check, Loader2, Plus, Search } from "lucide-react"
+import { ArrowUp, Check, Loader2, Search } from "lucide-react"
 import { useId, useState } from "react"
 
 import { ClaimMagicInput, type SuggestionNotice } from "./claim-magic-input"
 
 type SearchIslandProps = {
-  onSubmit?: (tags: string[]) => void
+  onSubmit?: (tags: string[], verifyMatches: boolean, doubleCheckMatches: boolean) => void
   loading?: boolean
   disabled?: boolean
   showSuggestion?: SuggestionNotice | null
@@ -16,12 +16,15 @@ type SearchIslandProps = {
   forceTags?: string[]
   suggestions?: string[]
   onOpenFilters?: () => void
+  doubleCheckMatches?: boolean
+  onDoubleCheckMatchesChange?: (value: boolean) => void
 }
 
-export function SearchIsland({ onSubmit, loading, disabled, showSuggestion, onAcceptSuggestion, onRejectSuggestion, forceTags, suggestions, onOpenFilters }: SearchIslandProps) {
+export function SearchIsland({ onSubmit, loading, disabled, showSuggestion, onAcceptSuggestion, onRejectSuggestion, forceTags, suggestions, onOpenFilters, doubleCheckMatches = false, onDoubleCheckMatchesChange }: SearchIslandProps) {
   const id = useId()
   const [currentTags, setCurrentTags] = useState<string[]>([])
   const [currentText, setCurrentText] = useState("")
+  const [verifyMatches, setVerifyMatches] = useState(true)
 
   return (
     <motion.div
@@ -47,7 +50,7 @@ export function SearchIsland({ onSubmit, loading, disabled, showSuggestion, onAc
               className="flex-1"
               placeholder="Search apartments..."
               disabled={Boolean(disabled || loading)}
-              onSubmit={value => onSubmit?.(value)}
+              onSubmit={value => onSubmit?.(value, verifyMatches, doubleCheckMatches)}
               onChangeTags={setCurrentTags}
               onChangeText={setCurrentText}
               onFocusChange={undefined}
@@ -85,7 +88,7 @@ export function SearchIsland({ onSubmit, loading, disabled, showSuggestion, onAc
                   const pending = currentText.trim()
                   const submitted = [...currentTags, ...(pending ? [pending] : [])]
                   if (submitted.length === 0) return
-                  onSubmit?.(submitted)
+                  onSubmit?.(submitted, verifyMatches, doubleCheckMatches)
                 }}
               >
                 {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <ArrowUp size={18} />}
@@ -94,14 +97,61 @@ export function SearchIsland({ onSubmit, loading, disabled, showSuggestion, onAc
           </div>
 
           <div className="border-t border-border/60 px-5 py-3">
-            <button
-              type="button"
-              className="flex items-center gap-3 text-muted-foreground transition-colors hover:text-foreground"
-              onClick={() => onOpenFilters?.()}
-            >
-              <Plus className="h-5 w-5" />
-              <span className="select-none">Add filters</span>
-            </button>
+            <div className="flex items-center gap-2">
+              <motion.button
+                type="button"
+                className={`flex items-center gap-2 rounded-full border px-3 py-1 ${
+                  verifyMatches
+                    ? "border-sky-200 bg-sky-50 text-sky-700 dark:border-sky-500/40 dark:bg-sky-500/15 dark:text-sky-200"
+                    : "text-muted-foreground/50 border-border"
+                }`}
+                onClick={() => setVerifyMatches(!verifyMatches)}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                transition={{ duration: 0.15 }}
+              >
+                <motion.div 
+                  className={`h-1 w-1 rounded-full ${verifyMatches ? "bg-sky-600" : "bg-muted-foreground/40"}`}
+                  animate={{ 
+                    scale: verifyMatches ? [1, 1.3, 1] : 1,
+                    opacity: verifyMatches ? [1, 0.7, 1] : 0.6
+                  }}
+                  transition={{ 
+                    duration: 1.5,
+                    repeat: verifyMatches ? Infinity : 0,
+                    ease: "easeInOut"
+                  }}
+                />
+                <span className="select-none text-sm font-medium">Double-check matches</span>
+              </motion.button>
+
+              <motion.button
+                type="button"
+                className={`flex items-center gap-2 rounded-full border px-3 py-1 ${
+                  doubleCheckMatches
+                    ? "border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-500/40 dark:bg-amber-500/15 dark:text-amber-200"
+                    : "text-muted-foreground/50 border-border"
+                }`}
+                onClick={() => onDoubleCheckMatchesChange?.(!doubleCheckMatches)}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                transition={{ duration: 0.15 }}
+              >
+                <motion.div 
+                  className={`h-1 w-1 rounded-full ${doubleCheckMatches ? "bg-amber-600" : "bg-muted-foreground/40"}`}
+                  animate={{ 
+                    scale: doubleCheckMatches ? [1, 1.3, 1] : 1,
+                    opacity: doubleCheckMatches ? [1, 0.7, 1] : 0.6
+                  }}
+                  transition={{ 
+                    duration: 1.5,
+                    repeat: doubleCheckMatches ? Infinity : 0,
+                    ease: "easeInOut"
+                  }}
+                />
+                <span className="select-none text-sm font-medium">Ignore thresholds</span>
+              </motion.button>
+            </div>
           </div>
         </motion.div>
       </div>

@@ -1,5 +1,6 @@
 import type { ApartmentDetail } from "@/lib/types"
 import { Badge } from "@/components/ui/badge"
+import { formatClaimText } from "@/lib/format-claim"
 import {
   MapPin,
   Sparkles,
@@ -15,7 +16,7 @@ import {
   FileText,
 } from "lucide-react"
 
-interface ClaimsTabProps {
+interface FeaturesTabProps {
   apartment: ApartmentDetail
 }
 
@@ -34,13 +35,7 @@ const claimTypeIcons = {
   restrictions: FileText,
 }
 
-const formatClaimText = (text: string): string => {
-  return text
-    .replace(/_/g, " ")
-    .replace(/\b\w/g, (char) => char.toUpperCase())
-}
-
-export function ClaimsTab({ apartment }: ClaimsTabProps) {
+export function FeaturesTab({ apartment }: FeaturesTabProps) {
   const baseClaims = apartment.claims.filter((claim) => claim.kind === "base")
 
   const groupedClaims = baseClaims.reduce((acc, claim) => {
@@ -52,16 +47,10 @@ export function ClaimsTab({ apartment }: ClaimsTabProps) {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="space-y-4">
-        <p className="text-neutral-700 text-[15px]">
-          {apartment.summary?.base_claims || baseClaims.length} base claims extracted from listings and images.
-        </p>
-      </div>
-
       {Object.entries(groupedClaims).map(([groupKey, claims]) => (
         <div key={groupKey} className="space-y-3">
           <h2 className="text-neutral-900 text-base font-medium capitalize">
-            {formatClaimText(groupKey)}:
+            {formatClaimText(groupKey)}
           </h2>
           <div className="flex flex-wrap gap-2">
             {claims.map((claim, index) => {
@@ -73,7 +62,7 @@ export function ClaimsTab({ apartment }: ClaimsTabProps) {
                   className="bg-neutral-50 text-neutral-700 border border-neutral-200 hover:bg-neutral-100 px-3 py-1.5 text-[13px] font-normal"
                 >
                   {Icon && <Icon className="h-3.5 w-3.5 mr-1.5" />}
-                  {formatClaimText(claim.claim)}
+                  {formatClaimText(claim.claim, claim.quantifiers)}
                 </Badge>
               )
             })}

@@ -1,6 +1,7 @@
 import { motion } from "framer-motion"
 import { Image as ImageIcon, FileText, CheckCircle2 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
+import { formatClaimText } from "@/lib/format-claim"
 import type { Claim } from "@/lib/types"
 
 interface ClaimItemProps {
@@ -18,7 +19,7 @@ export function ClaimItem({ claim, index }: ClaimItemProps) {
     >
       <div className="flex items-start justify-between gap-2">
         <div className="flex-1">
-          <div className="font-medium">{claim.claim}</div>
+          <div className="font-medium">{formatClaimText(claim.claim, claim.quantifiers)}</div>
           <div className="flex flex-wrap gap-2 mt-2">
             <Badge variant="outline" className="text-xs">
               {claim.claim_type}

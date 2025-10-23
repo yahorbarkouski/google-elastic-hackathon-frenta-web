@@ -1,5 +1,6 @@
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
+import { formatClaimText } from "@/lib/format-claim"
 import type { SearchResult } from "@/lib/types"
 import { Home, MapPin, Star } from "lucide-react"
 
@@ -96,7 +97,7 @@ export function SearchResultCard({ result }: SearchResultCardProps) {
                     className={`text-xs ${getBgColor(similarityValue * 100)}`}
                   >
                     <span className="font-semibold mr-1">{similarity}%</span>
-                    {claim.matched_claim}
+                    {formatClaimText(claim.matched_claim, claim.matched_quantifiers)}
                     {claim.kind === "verified" && (
                       <Star className="h-3 w-3 ml-1 inline fill-yellow-400 text-yellow-400" />
                     )}

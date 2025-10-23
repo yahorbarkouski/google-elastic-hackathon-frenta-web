@@ -46,13 +46,6 @@ export function ApartmentActionIsland() {
                 <button
                   type="button"
                   className="flex h-8 w-8 items-center justify-center rounded-full text-foreground/70 transition-colors hover:bg-accent hover:text-foreground"
-                  aria-label="Save apartment"
-                >
-                  <BookmarkPlus className="h-4 w-4" />
-                </button>
-                <button
-                  type="button"
-                  className="flex h-8 w-8 items-center justify-center rounded-full text-foreground/70 transition-colors hover:bg-accent hover:text-foreground"
                   aria-label="More options"
                 >
                   <MoreHorizontal className="h-4 w-4" />

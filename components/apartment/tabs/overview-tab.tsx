@@ -1,15 +1,21 @@
 "use client"
 
-import { useState, useRef, useEffect } from "react"
+import { useState, useRef, useEffect, lazy, Suspense } from "react"
 import Image from "next/image"
 import type { ApartmentDetail, ImageMetadata } from "@/lib/types"
-import { Location3DMap, type Location3DMapRef } from "../location-3d-map"
+import type { Location3DMapRef } from "../location-3d-map"
 import { generateMapsGroundedContent } from "@/lib/api"
+
+const Location3DMap = lazy(() => 
+  import("../location-3d-map").then(mod => ({ default: mod.Location3DMap }))
+)
 
 interface OverviewTabProps {
   apartment: ApartmentDetail
   onLocationQuerySubmit?: (handler: (query: string) => Promise<void>) => void
   onMapVisibilityChange?: (isVisible: boolean) => void
+  animationsComplete?: boolean
+  isActive?: boolean
 }
 
 interface PhotoSection {
@@ -18,16 +24,18 @@ interface PhotoSection {
 }
 
 const PHOTO_SECTIONS_CONFIG = [
-  { type: "bedroom", title: "Where You'll Sleep" },
-  { type: "living_room", title: "Where You'll Chill" }
+  { type: "bedroom", title: "Where You&apos;ll Sleep" },
+  { type: "living_room", title: "Where You&apos;ll Chill" }
 ]
 
-export function OverviewTab({ apartment, onLocationQuerySubmit, onMapVisibilityChange }: OverviewTabProps) {
+export function OverviewTab({ apartment, onLocationQuerySubmit, onMapVisibilityChange, animationsComplete = false, isActive = true }: OverviewTabProps) {
   const [isExpanded, setIsExpanded] = useState(false)
   const [showReadMore, setShowReadMore] = useState(false)
+  const [shouldRenderMap, setShouldRenderMap] = useState(false)
   const textRef = useRef<HTMLParagraphElement>(null)
   const mapRef = useRef<Location3DMapRef>(null)
   const mapContainerRef = useRef<HTMLDivElement>(null)
+  const mapTriggerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     if (textRef.current) {
@@ -37,6 +45,27 @@ export function OverviewTab({ apartment, onLocationQuerySubmit, onMapVisibilityC
       setShowReadMore(lines > 3)
     }
   }, [apartment.property_summary])
+
+  useEffect(() => {
+    if (!animationsComplete || !mapTriggerRef.current) return
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setShouldRenderMap(true)
+          observer.disconnect()
+        }
+      },
+      {
+        rootMargin: "400px 0px 400px 0px",
+        threshold: 0,
+      }
+    )
+
+    observer.observe(mapTriggerRef.current)
+
+    return () => observer.disconnect()
+  }, [animationsComplete])
 
   useEffect(() => {
     if (!onLocationQuerySubmit || !apartment.location) return
@@ -67,7 +96,7 @@ export function OverviewTab({ apartment, onLocationQuerySubmit, onMapVisibilityC
   }, [onLocationQuerySubmit, apartment.location])
 
   useEffect(() => {
-    if (!mapContainerRef.current || !onMapVisibilityChange) return
+    if (!mapTriggerRef.current || !onMapVisibilityChange || !isActive) return
 
     const observer = new IntersectionObserver(
       ([entry]) => {
@@ -79,12 +108,12 @@ export function OverviewTab({ apartment, onLocationQuerySubmit, onMapVisibilityC
       }
     )
 
-    observer.observe(mapContainerRef.current)
+    observer.observe(mapTriggerRef.current)
 
     return () => {
       observer.disconnect()
     }
-  }, [onMapVisibilityChange])
+  }, [onMapVisibilityChange, isActive])
 
   const hasContent = apartment.property_summary || apartment.location_summary
 
@@ -165,7 +194,7 @@ export function OverviewTab({ apartment, onLocationQuerySubmit, onMapVisibilityC
       {apartment.location_summary && (
         <section className="max-w-4xl">
           <h2 className="text-lg font-medium text-neutral-900 mb-3">
-            Where You'll Be
+            Where You&apos;ll Be
           </h2>
           <p className="text-neutral-700 leading-relaxed whitespace-pre-line mb-6">
             {apartment.location_summary}
@@ -174,13 +203,32 @@ export function OverviewTab({ apartment, onLocationQuerySubmit, onMapVisibilityC
       )}
 
       {hasLocation && apartment.location && (
-        <div ref={mapContainerRef}>
-          <Location3DMap
-            ref={mapRef}
-            latitude={apartment.location.lat}
-            longitude={apartment.location.lon}
-            address={apartment.address}
-          />
+        <div ref={mapTriggerRef}>
+          {shouldRenderMap ? (
+            <div ref={mapContainerRef}>
+              <Suspense fallback={
+                <div className="relative rounded-lg overflow-hidden border border-neutral-200 bg-neutral-100 animate-pulse">
+                  <div className="w-full h-[500px] flex items-center justify-center">
+                    <div className="flex flex-col items-center gap-3">
+                      <div className="animate-spin rounded-full h-8 w-8 border-2 border-neutral-300 border-t-neutral-900" />
+                      <p className="text-sm text-neutral-600">Loading map...</p>
+                    </div>
+                  </div>
+                </div>
+              }>
+                <Location3DMap
+                  ref={mapRef}
+                  latitude={apartment.location.lat}
+                  longitude={apartment.location.lon}
+                  address={apartment.address}
+                />
+              </Suspense>
+            </div>
+          ) : (
+            <div className="relative rounded-lg overflow-hidden border border-neutral-200 bg-neutral-100">
+              <div className="w-full h-[500px]" />
+            </div>
+          )}
         </div>
       )}
     </div>

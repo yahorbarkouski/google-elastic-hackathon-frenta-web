@@ -1,14 +1,12 @@
 "use client"
 
-import { useState, useCallback } from "react"
+import { useState, useCallback, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { ApartmentActionIsland } from "@/components/apartment/apartment-action-island"
 import { ApartmentHeader } from "@/components/apartment/apartment-header"
 import { ApartmentTabs } from "@/components/apartment/apartment-tabs"
 import { OverviewTab } from "@/components/apartment/tabs/overview-tab"
-import { ClaimsTab } from "@/components/apartment/tabs/claims-tab"
-import { DetailsTab } from "@/components/apartment/tabs/details-tab"
-import { LocationTab } from "@/components/apartment/tabs/location-tab"
+import { FeaturesTab } from "@/components/apartment/tabs/features-tab"
 import { LocationSearchIsland } from "@/components/apartment/location-search-island"
 import type { ApartmentDetail } from "@/lib/types"
 
@@ -17,13 +15,18 @@ interface ApartmentDetailClientProps {
 }
 
 export function ApartmentDetailClient({ apartment }: ApartmentDetailClientProps) {
-  const [activeTab, setActiveTab] = useState<"overview" | "claims" | "details" | "location">("overview")
+  const [activeTab, setActiveTab] = useState<"overview" | "features">("overview")
   const [locationQueryHandler, setLocationQueryHandler] = useState<((query: string) => Promise<void>) | null>(null)
   const [locationSearchLoading, setLocationSearchLoading] = useState(false)
   const [isMapVisible, setIsMapVisible] = useState(false)
+  const [isGalleryOpen, setIsGalleryOpen] = useState(false)
+  const [animationsComplete, setAnimationsComplete] = useState(false)
 
-  const handleTabChange = (value: "overview" | "claims" | "details" | "location") => {
+  const handleTabChange = (value: "overview" | "features") => {
     setActiveTab(value)
+    if (value !== "overview") {
+      setIsMapVisible(false)
+    }
   }
 
   const handleLocationQuerySubmit = useCallback((handler: (query: string) => Promise<void>) => {
@@ -32,6 +35,10 @@ export function ApartmentDetailClient({ apartment }: ApartmentDetailClientProps)
 
   const handleMapVisibilityChange = useCallback((isVisible: boolean) => {
     setIsMapVisible(isVisible)
+  }, [])
+
+  const handleGalleryOpenChange = useCallback((isOpen: boolean) => {
+    setIsGalleryOpen(isOpen)
   }, [])
 
   const handleLocationSearch = async (query: string) => {
@@ -45,6 +52,13 @@ export function ApartmentDetailClient({ apartment }: ApartmentDetailClientProps)
       setLocationSearchLoading(false)
     }
   }
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setAnimationsComplete(true)
+    }, 800)
+    return () => clearTimeout(timer)
+  }, [])
 
   const containerVariants = {
     initial: { opacity: 0 },
@@ -91,7 +105,7 @@ export function ApartmentDetailClient({ apartment }: ApartmentDetailClientProps)
       initial="initial"
       animate="animate"
     >
-      <div className="relative z-10 flex w-full flex-col items-center pt-8">
+      <div className="relative z-10 flex w-full flex-col items-center">
         <div className="w-full max-w-7xl px-2 md:px-6 lg:px-12">
           <motion.div
             variants={itemVariants}
@@ -111,7 +125,10 @@ export function ApartmentDetailClient({ apartment }: ApartmentDetailClientProps)
               className="flex flex-col w-full bg-[#F7F6F4] rounded-[16px] p-5 md:p-8 lg:p-12"
             >
               <motion.div variants={itemVariants}>
-                <ApartmentHeader apartment={apartment} />
+                <ApartmentHeader 
+                  apartment={apartment}
+                  onGalleryOpenChange={handleGalleryOpenChange}
+                />
               </motion.div>
 
               <motion.div variants={itemVariants}>
@@ -122,16 +139,18 @@ export function ApartmentDetailClient({ apartment }: ApartmentDetailClientProps)
                 className="mt-6 text-[15px] w-full"
                 variants={itemVariants}
               >
-                {activeTab === "overview" && (
+                <div className={activeTab === "overview" ? "block" : "hidden"}>
                   <OverviewTab 
                     apartment={apartment} 
                     onLocationQuerySubmit={handleLocationQuerySubmit}
                     onMapVisibilityChange={handleMapVisibilityChange}
+                    animationsComplete={animationsComplete}
+                    isActive={activeTab === "overview"}
                   />
-                )}
-                {activeTab === "claims" && <ClaimsTab apartment={apartment} />}
-                {activeTab === "details" && <DetailsTab apartment={apartment} />}
-                {activeTab === "location" && <LocationTab apartment={apartment} />}
+                </div>
+                <div className={activeTab === "features" ? "block" : "hidden"}>
+                  <FeaturesTab apartment={apartment} />
+                </div>
               </motion.div>
             </motion.div>
           </motion.div>
@@ -139,7 +158,7 @@ export function ApartmentDetailClient({ apartment }: ApartmentDetailClientProps)
       </div>
 
       <AnimatePresence>
-        {isMapVisible && apartment.location && (
+        {isMapVisible && apartment.location && !isGalleryOpen && (
           <motion.div
             initial={{ y: 100, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}

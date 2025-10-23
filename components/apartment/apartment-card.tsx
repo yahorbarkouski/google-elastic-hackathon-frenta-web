@@ -1,9 +1,10 @@
 import { Badge } from "@/components/ui/badge"
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel"
 import { getImageUrl } from "@/lib/api"
-import type { SearchResult } from "@/lib/types"
+import { formatClaimText } from "@/lib/format-claim"
+import type { MatchedClaim, SearchResult } from "@/lib/types"
 import { motion } from "framer-motion"
-import { Calendar, DollarSign, Home, MapPin, Star } from "lucide-react"
+import { Bath, Building2, Calendar, ChefHat, DollarSign, Briefcase, Home, MapPin, Star, Trees, Bed, Sofa, LucideIcon, CheckCheckIcon } from "lucide-react"
 import Image from "next/image"
 
 export interface ApartmentCardProps {
@@ -11,15 +12,56 @@ export interface ApartmentCardProps {
   onClick?: () => void
 }
 
-const BADGE_VARIANTS = ["emerald", "amber", "violet", "sky", "rose", "slate"] as const
+function getVariantFromSimilarity(similarity: number): "emerald" | "amber" | "rose" {
+  if (similarity > 0.88) return "emerald"
+  return "amber"
+}
 
-function stringToVariant(text: string): typeof BADGE_VARIANTS[number] {
-  let hash = 0
-  for (let i = 0; i < text.length; i++) {
-    hash = ((hash << 5) - hash) + text.charCodeAt(i)
-    hash = hash & hash
+function capitalizeFirst(text: string): string {
+  if (!text) return text
+  return text.charAt(0).toUpperCase() + text.slice(1)
+}
+
+function getClaimIcon(claim: MatchedClaim): LucideIcon {
+  if (claim.room_type) {
+    const roomType = claim.room_type.toLowerCase()
+    switch (roomType) {
+      case 'kitchen':
+        return ChefHat
+      case 'bedroom':
+        return Bed
+      case 'bathroom':
+        return Bath
+      case 'living_room':
+      case 'living room':
+        return Sofa
+      case 'dining_room':
+      case 'dining room':
+        return Sofa
+      case 'office':
+        return Briefcase
+      case 'balcony':
+      case 'outdoor_space':
+      case 'outdoor space':
+        return Trees
+      case 'closet':
+        return Home
+      default:
+        console.log('Unknown room_type:', claim.room_type, 'for claim:', claim.matched_claim)
+        return Home
+    }
   }
-  return BADGE_VARIANTS[Math.abs(hash) % BADGE_VARIANTS.length]
+  
+  switch (claim.domain) {
+    case 'room':
+      return Home
+    case 'apartment':
+      return Building2
+    case 'neighborhood':
+      return Trees
+    default:
+      return Home
+  }
 }
 
 function formatAvailabilityDates(dates: { start: string; end?: string }[]): string {
@@ -42,7 +84,7 @@ export function ApartmentCard({ apartment, onClick }: ApartmentCardProps) {
   return (
     <motion.div
       layout
-      className="flex flex-col w-full rounded-[32px] p-1 group hover:bg-[#DBDAD8]"
+      className="flex flex-col w-full h-full rounded-[24px] md:rounded-[32px] p-1 group hover:bg-[#DBDAD8]"
       transition={{
         layout: {
           type: "spring",
@@ -52,7 +94,7 @@ export function ApartmentCard({ apartment, onClick }: ApartmentCardProps) {
         }
       }}
     >
-      <div className="flex flex-col w-full group-hover:bg-[#F7F6F4]/90 bg-[#F7F6F4] rounded-[28px] overflow-hidden">
+      <div className="flex flex-col w-full h-full group-hover:bg-[#F7F6F4]/90 bg-[#F7F6F4] rounded-[20px] md:rounded-[28px] overflow-hidden">
 
         {hasImages ? (
           <Carousel className="w-full">
@@ -91,57 +133,64 @@ export function ApartmentCard({ apartment, onClick }: ApartmentCardProps) {
         )}
 
         <div
-          className="flex flex-col gap-5 p-5 cursor-pointer"
+          className="flex flex-col gap-3 md:gap-5 p-3 md:p-5 cursor-pointer"
           onClick={onClick}
         >
-          <div className="flex flex-col gap-3">
-            <div className="flex items-center justify-between">
-              <span className="text-xl font-medium font-title">
+          <div className="flex flex-col gap-2 md:gap-3">
+            <div className="flex items-center justify-between gap-2 md:gap-3">
+              <span className="text-lg md:text-xl font-medium font-title">
                 {apartment.title || apartment.address || apartment.apartment_id}
               </span>
             </div>
 
             {apartment.geo_proximity && (
-              <div className="flex items-center gap-1 text-sm">
-                <MapPin className="size-3.5 text-[#727170]" />
+              <div className="flex items-center gap-1 text-xs md:text-sm">
+                <MapPin className="size-3 md:size-3.5 text-[#727170]" />
                 {apartment.geo_proximity.distance} to {apartment.geo_proximity.location}
               </div>
             )}
           </div>
 
           {(apartment.rent_price || (apartment.availability_dates && apartment.availability_dates.length > 0)) && (
-            <div className="flex flex-wrap gap-3 text-sm">
+            <div className="flex flex-wrap gap-2 md:gap-3 text-xs md:text-sm">
               {apartment.rent_price && (
                 <div className="flex items-center gap-1 font-medium">
-                  <DollarSign className="size-4 text-[#727170]" />
+                  <DollarSign className="size-3.5 md:size-4 text-[#727170]" />
                   <span>${apartment.rent_price.toLocaleString()}/mo</span>
                 </div>
               )}
               {apartment.availability_dates && apartment.availability_dates.length > 0 && (
                 <div className="flex items-center gap-1 text-[#727170]">
-                  <Calendar className="size-4" />
+                  <Calendar className="size-3.5 md:size-4" />
                   <span>{formatAvailabilityDates(apartment.availability_dates)}</span>
                 </div>
               )}
             </div>
           )}
-
           {apartment.matched_claims.length > 0 && (
-            <div className="flex flex-wrap gap-2">
-              {apartment.matched_claims.slice(0, 8).map((claim, idx) => (
-                <Badge
-                  key={idx}
-                  variant={stringToVariant(claim.matched_claim)}
-                  className="text-xs"
-                >
-                  {claim.matched_claim}
-                  {claim.kind === "verified" && (
-                    <Star className="h-2.5 w-2.5 fill-current" />
-                  )}
-                </Badge>
-              ))}
+            <div className="flex flex-wrap gap-1.5 md:gap-2">
+              {apartment.matched_claims
+                .sort((a, b) => b.similarity - a.similarity)
+                .slice(0, 8)
+                .map((claim, idx) => {
+                const ClaimIcon = getClaimIcon(claim)
+                return (
+                  <Badge
+                    key={idx}
+                    variant={getVariantFromSimilarity(claim.similarity)}
+                    className="text-[10px] md:text-xs cursor-help flex items-center gap-0.5 md:gap-1"
+                    title={`${Math.round(claim.similarity * 100)}% match${claim.room_type ? ` · ${claim.room_type}` : ''} · ${claim.domain}`}
+                  >
+                    <ClaimIcon className="h-2.5 md:h-3 w-2.5 md:w-3" />
+                    {capitalizeFirst(formatClaimText(claim.matched_claim, claim.matched_quantifiers))}
+                    {claim.kind === "verified" && (
+                      <CheckCheckIcon className="h-2 md:h-2.5 w-2 md:w-2.5 fill-current ml-0.5" />
+                    )}
+                  </Badge>
+                )
+              })}
               {apartment.matched_claims.length > 8 && (
-                <Badge variant="neutral" className="text-xs">
+                <Badge variant="neutral" className="text-[10px] md:text-xs">
                   +{apartment.matched_claims.length - 8}
                 </Badge>
               )}
@@ -149,14 +198,11 @@ export function ApartmentCard({ apartment, onClick }: ApartmentCardProps) {
           )}
 
           {apartment.grounded_sources && apartment.grounded_sources.length > 0 && (
-            <div className="flex flex-col gap-2">
-              <div className="flex flex-wrap gap-2">
+            <div className="flex flex-col gap-1.5 md:gap-2">
+              <div className="flex flex-wrap gap-1.5 md:gap-2">
                 {apartment.grounded_sources.map((source, idx) => (
-                  <div key={idx} className="flex items-center gap-1 px-2 py-1 rounded-lg bg-[#E8E7E5] text-xs">
+                  <div key={idx} className="flex items-center gap-1 px-2 py-1 rounded-lg bg-[#E8E7E5] text-[10px] md:text-xs">
                     <span>{source.title}</span>
-                    {source.rating && (
-                      <span className="text-yellow-600">{source.rating}★</span>
-                    )}
                   </div>
                 ))}
               </div>

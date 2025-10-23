@@ -7,6 +7,7 @@ import {
   searchLoadingAtom,
   searchErrorAtom,
   searchedAtom,
+  doubleCheckMatchesAtom,
 } from "@/lib/atoms/search"
 
 export function useSearch() {
@@ -15,8 +16,9 @@ export function useSearch() {
   const [loading, setLoading] = useAtom(searchLoadingAtom)
   const [error, setError] = useAtom(searchErrorAtom)
   const [searched, setSearched] = useAtom(searchedAtom)
+  const [doubleCheckMatches, setDoubleCheckMatches] = useAtom(doubleCheckMatchesAtom)
 
-  const search = useCallback(async (searchQuery?: string) => {
+  const search = useCallback(async (searchQuery?: string, verifyMatches?: boolean, doubleCheck?: boolean) => {
     const queryToSearch = searchQuery || query
     if (!queryToSearch.trim()) return
 
@@ -24,7 +26,13 @@ export function useSearch() {
     setSearched(true)
     setError(null)
     try {
-      const data = await searchApartments(queryToSearch, 20)
+      const data = await searchApartments(
+        queryToSearch, 
+        20, 
+        undefined, 
+        verifyMatches, 
+        doubleCheck !== undefined ? doubleCheck : doubleCheckMatches
+      )
       setResults(data.results)
     } catch (err) {
       setError(err instanceof Error ? err.message : "Search failed")
@@ -32,7 +40,7 @@ export function useSearch() {
     } finally {
       setLoading(false)
     }
-  }, [query, setError, setLoading, setResults, setSearched])
+  }, [query, doubleCheckMatches, setError, setLoading, setResults, setSearched])
 
   return {
     query,
@@ -42,5 +50,7 @@ export function useSearch() {
     error,
     searched,
     search,
+    doubleCheckMatches,
+    setDoubleCheckMatches,
   }
 }

@@ -30,6 +30,15 @@ export interface Apartment {
   location_widget_token?: string
 }
 
+export interface Quantifier {
+  qtype: "count" | "area" | "money" | "distance" | "time"
+  noun: string
+  vmin: number
+  vmax: number
+  op: "EQUALS" | "GTE" | "LTE" | "APPROX"
+  unit?: string
+}
+
 export interface Claim {
   claim: string
   claim_type: string
@@ -47,7 +56,7 @@ export interface Claim {
     image_index?: number
   }
   grounding_metadata?: GroundingMetadata
-  quantifiers?: unknown[]
+  quantifiers?: Quantifier[]
 }
 
 export interface GroundingMetadata {
@@ -83,6 +92,9 @@ export interface MatchedClaim {
   similarity: number
   domain: string
   kind: string
+  room_type?: string
+  query_quantifiers?: Quantifier[]
+  matched_quantifiers?: Quantifier[]
 }
 
 export interface GroundedSource {

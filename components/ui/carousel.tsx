@@ -135,7 +135,7 @@ const Carousel = React.forwardRef<
         <div
           ref={ref}
           onKeyDownCapture={handleKeyDown}
-          className={cn("relative", className)}
+          className={cn("relative group", className)}
           role="region"
           aria-roledescription="carousel"
           {...props}
@@ -208,12 +208,12 @@ const CarouselPrevious = React.forwardRef<
       {canScrollPrev && (
         <motion.button
           ref={ref}
-          initial={{ opacity: 0, x: -10 }}
-          animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: -10 }}
+          initial={{ x: -10 }}
+          animate={{ x: 0 }}
+          exit={{ x: -10 }}
           transition={{ duration: 0.2 }}
           className={cn(
-            "absolute h-8 w-8 rounded-full bg-white/90 hover:bg-white flex items-center justify-center shadow-lg z-10",
+            "absolute h-8 w-8 rounded-full bg-white/90 hover:bg-white flex items-center justify-center shadow-lg z-10 opacity-0 group-hover:opacity-100 transition-opacity",
             orientation === "horizontal"
               ? "top-1/2 -translate-y-1/2"
               : "left-1/2 -translate-x-1/2 rotate-90",
@@ -246,12 +246,12 @@ const CarouselNext = React.forwardRef<
       {canScrollNext && (
         <motion.button
           ref={ref}
-          initial={{ opacity: 0, x: 10 }}
-          animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: 10 }}
+          initial={{ x: 10 }}
+          animate={{ x: 0 }}
+          exit={{ x: 10 }}
           transition={{ duration: 0.2 }}
           className={cn(
-            "absolute h-8 w-8 rounded-full bg-white/90 hover:bg-white flex items-center justify-center shadow-lg z-10",
+            "absolute h-8 w-8 rounded-full bg-white/90 hover:bg-white flex items-center justify-center shadow-lg z-10 opacity-0 group-hover:opacity-100 transition-opacity",
             orientation === "horizontal"
               ? "top-1/2 -translate-y-1/2"
               : "left-1/2 -translate-x-1/2 rotate-90",

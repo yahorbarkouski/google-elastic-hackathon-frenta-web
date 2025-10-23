@@ -6,7 +6,6 @@ import { useTransitionRouter } from "next-view-transitions"
 import { DatabaseApartmentCard } from "@/components/apartment/database-apartment-card"
 import { GenerateApartmentDialog } from "@/components/apartment/generate-apartment-dialog"
 import { EmptyState } from "@/components/shared/empty-state"
-import { ScrollArea } from "@/components/ui/scroll-area"
 import { Button } from "@/components/ui/button"
 import { useApartments } from "@/hooks/use-apartments"
 import { ChevronLeft, ChevronRight, Sparkles } from "lucide-react"
@@ -26,27 +25,27 @@ export default function DatabasePage() {
 
   return (
     <div className="relative flex min-h-screen flex-col bg-[#E8E7E5]">
-      <div className="relative z-10 flex w-full flex-1 flex-col items-center pt-8 pb-24">
-        <div className="w-full max-w-3xl px-2 md:px-4">
+      <div className="relative flex w-full flex-1 flex-col items-center pt-4 md:pt-8 pb-24">
+        <div className="w-full max-w-3xl px-3 md:px-4">
 
           <motion.div
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3 }}
-            className="mb-8"
+            className="mb-6 md:mb-8"
           >
-            <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center justify-between gap-3 mb-2">
               <h1 className="text-4xl font-title">Apartment database</h1>
               <Button 
                 onClick={() => setGenerateDialogOpen(true)}
                 size="sm"
-                className="gap-1.5"
+                className="gap-1.5 shrink-0"
               >
                 <Sparkles className="size-4" />
-                Generate
+                <span className="hidden sm:inline">Generate</span>
               </Button>
             </div>
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
               <p className="text-muted-foreground">
                 Browse all apartments in the database
               </p>
@@ -71,26 +70,21 @@ export default function DatabasePage() {
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.28, delay: 0.1 }}
-              className="flex flex-col gap-6"
+              className="flex flex-col gap-3 md:gap-4"
             >
-              <ScrollArea className="h-[calc(100vh-16rem)]">
-                <div className="flex flex-col gap-4">
-                  {apartments.map((apartment, index) => (
-                    <motion.div
-                      key={apartment.apartment_id}
-                      initial={{ opacity: 0, y: 8 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: index * 0.03, duration: 0.2 }}
-                    >
-                      <DatabaseApartmentCard
-                        apartment={apartment}
-                        onClick={() => handleApartmentClick(apartment.apartment_id)}
-                        transitionName={`apartment-${apartment.apartment_id}`}
-                      />
-                    </motion.div>
-                  ))}
-                </div>
-              </ScrollArea>
+              {apartments.map((apartment, index) => (
+                <motion.div
+                  key={apartment.apartment_id}
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.03, duration: 0.2 }}
+                >
+                  <DatabaseApartmentCard
+                    apartment={apartment}
+                    onClick={() => handleApartmentClick(apartment.apartment_id)}
+                  />
+                </motion.div>
+              ))}
             </motion.div>
           )}
         </div>
@@ -101,11 +95,11 @@ export default function DatabasePage() {
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3, delay: 0.2 }}
-          className="fixed bottom-8 left-1/2 -translate-x-1/2 z-20"
+          className="fixed bottom-5 md:bottom-8 left-1/2 -translate-x-1/2 z-20 px-3"
         >
           <div className="relative overflow-hidden rounded-[20px] border border-border bg-card shadow-[0_12px_40px_rgba(0,0,0,0.08)]">
             <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/3 to-transparent" />
-            <div className="flex items-center gap-2 px-4 py-3">
+            <div className="flex items-center gap-2 px-3 md:px-4 py-2.5 md:py-3">
               <button
                 onClick={() => setPage(Math.max(1, page - 1))}
                 disabled={page === 1}
@@ -113,7 +107,7 @@ export default function DatabasePage() {
               >
                 <ChevronLeft className="h-4 w-4" />
               </button>
-              <div className="px-4 text-sm font-medium">
+              <div className="px-3 md:px-4 text-sm font-medium">
                 <span className="text-foreground">{page}</span>
                 <span className="text-muted-foreground"> / {totalPages}</span>
               </div>

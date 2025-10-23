@@ -8,14 +8,15 @@ interface GoogleMapsWidgetProps {
 }
 
 declare global {
+  // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace JSX {
     interface IntrinsicElements {
       'gmp-place-contextual': React.DetailedHTMLProps<
-        React.HTMLAttributes<HTMLElement> & {
-          'context-token'?: string
-        },
+        React.HTMLAttributes<HTMLElement>,
         HTMLElement
-      >
+      > & {
+        'context-token'?: string
+      }
     }
   }
 }
@@ -70,6 +71,7 @@ export function GoogleMapsWidget({ contextToken, className }: GoogleMapsWidgetPr
 
   return (
     <div ref={containerRef} className={className}>
+      {/* @ts-expect-error - gmp-place-contextual is a custom element from Google Maps */}
       <gmp-place-contextual context-token={contextToken} />
     </div>
   )

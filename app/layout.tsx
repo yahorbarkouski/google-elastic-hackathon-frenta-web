@@ -6,6 +6,7 @@ import './globals.css';
 
 import { ViewTransitions } from 'next-view-transitions';
 import { MapsProvider } from '@/components/maps-provider';
+import { Navigation } from '@/components/navigation';
 
 const inter = Hanken_Grotesk({
   subsets: ['latin'],
@@ -21,8 +22,8 @@ const title = Libre_Baskerville({
 
 export const metadata: Metadata = {
   title: {
-    template: '%s | Life Ledger',
-    default: 'Life Ledger',
+    template: '%s | Frenta',
+    default: 'Frenta',
   },
 };
 
@@ -35,10 +36,13 @@ export default function RootLayout(
   return (
     <ViewTransitions>
       <html lang="en" suppressHydrationWarning className={`${inter.variable} ${title.variable}`}>
-        <body className="min-h-screen overflow-y-auto bg-background">
+        <body className="min-h-screen bg-background h-full">
           <JotaiProvider>
             <MapsProvider>
-              {children}
+              <Navigation />
+              <main className="pt-16 h-full">
+                {children}
+              </main>
             </MapsProvider>
           </JotaiProvider>
         </body>

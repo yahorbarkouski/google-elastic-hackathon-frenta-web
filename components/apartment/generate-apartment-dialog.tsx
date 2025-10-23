@@ -166,8 +166,8 @@ export function GenerateApartmentDialog({ open, onClose, onSuccess }: GenerateAp
             >
               <DialogHeader>
                 <DialogTitle className="flex items-center gap-2">
-                  <Sparkles className="size-5 text-primary" />
-                  Generate Apartment
+                  <Home className="size-5 text-primary" />
+                  Add new apartment
                 </DialogTitle>
                 <DialogDescription>
                   Create a synthetic apartment with AI-generated images and metadata. Leave fields empty for random generation.

@@ -35,16 +35,28 @@ export async function fetchApartmentDetail(apartmentId: string): Promise<Apartme
 export async function searchApartments(
   query: string,
   topK: number = 10,
-  userLocation?: { lat: number; lng: number }
+  userLocation?: { lat: number; lng: number },
+  verifyMatches?: boolean,
+  doubleCheckMatches?: boolean
 ): Promise<{ results: SearchResult[] }> {
   const body: {
     query: string
     top_k: number
     user_location?: { lat: number; lng: number }
+    verify_claims?: boolean
+    double_check_matches?: boolean
   } = { query, top_k: topK }
   
   if (userLocation) {
     body.user_location = userLocation
+  }
+  
+  if (verifyMatches !== undefined) {
+    body.verify_claims = verifyMatches
+  }
+  
+  if (doubleCheckMatches !== undefined) {
+    body.double_check_matches = doubleCheckMatches
   }
 
   const response = await fetch(`${API_BASE}/api/search`, {

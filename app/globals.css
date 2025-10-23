@@ -134,9 +134,17 @@ div[class*="api-load-alpha-banner"] {
     @apply border-border outline-ring/50;
   }
 
-body {
-    @apply bg-background text-foreground;
+  html {
+    overflow-y: scroll;
+    overflow-x: hidden;
   }
+
+  body {
+    @apply bg-background text-foreground;
+    position: relative;
+    overflow-x: hidden;
+  }
+  
   body::before {
     content: "";
     @apply pointer-events-none fixed inset-0 -z-10 bg-[radial-gradient(circle_at_top,_rgba(134,_239,_172,0.35),_transparent_55%),_radial-gradient(circle_at_bottom,_rgba(192,_132,_252,0.25),_transparent_60%)];
