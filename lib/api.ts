@@ -203,7 +203,7 @@ export async function generateMapsGroundedContent(params: {
     googleMapsWidgetContextToken?: string
   }
 }> {
-  const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY
+  const apiKey = process.env.GEMINI_API_KEY
 
   if (!apiKey) {
     throw new Error('Gemini API key not configured')
@@ -265,6 +265,6 @@ export async function generateMapsGroundedContent(params: {
 }
 
 export function getGeminiApiKey(): string | undefined {
-  return process.env.NEXT_PUBLIC_GEMINI_API_KEY
+  return process.env.GEMINI_API_KEY
 }
 
