@@ -1,0 +1,20 @@
+{
+	"folders": [
+		{
+			"path": "../apartment-search"
+		},
+		{
+			"path": "."
+		},
+		{
+			"path": "../signa-frontend"
+		},
+		{
+			"path": "../thenetwork-search"
+		},
+		{
+			"path": "../../Downloads/chat-with-maps-live"
+		}
+	],
+	"settings": {}
+}
